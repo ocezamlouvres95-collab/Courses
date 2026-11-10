@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liste de courses – Ô Cezam 95</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--ink:#1d1a16;--mute:#6f675d;--line:#e4ddd2;--acc:#c8321e;--acc2:#1f7a4d;--onacc:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17140f;--card:#221e18;--ink:#f3ede3;--mute:#a79d8e;--line:#352f26;--acc:#ff6a50;--acc2:#4cc58a;--onacc:#17140f}}
+:root[data-theme="dark"]{--bg:#17140f;--card:#221e18;--ink:#f3ede3;--mute:#a79d8e;--line:#352f26;--acc:#ff6a50;--acc2:#4cc58a;--onacc:#17140f}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;font-size:16px}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:12px 14px 8px;z-index:5;border-bottom:1px solid var(--line)}
+h1{font-size:20px;margin:0 0 8px;font-weight:800}
+h1 small{font-weight:400;color:var(--mute);font-size:13px;display:block}
+input,select{font:inherit}
+input[type=search],input.t{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-size:16px}
+.cats{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px}
+.cats button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:6px 12px;font-size:14px}
+.cats button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+main{padding:6px 14px 160px}
+h2{font-size:15px;margin:16px 0 6px;color:var(--acc);font-weight:800}
+.row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 10px;margin-bottom:6px}
+.row.sel{border-color:var(--acc2);box-shadow:inset 4px 0 0 var(--acc2)}
+.nm{flex:1;font-size:15px;line-height:1.25}.nm i{display:block;font-style:normal;color:var(--mute);font-size:12px}
+.q{display:flex;align-items:center;gap:4px}
+.q button,.x{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:22px;line-height:1}
+.q b{min-width:26px;text-align:center;font-size:17px}
+.pr{width:78px;padding:8px;text-align:right}
+.bt{padding:12px;border:0;border-radius:10px;background:var(--ink);color:var(--bg);font-size:15px;width:100%;margin:6px 0}
+.box{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:10px;margin:12px 0}
+.box h3{margin:0 0 8px;font-size:14px}.box .t{margin-bottom:6px}
+footer{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));z-index:6}
+.tot{display:flex;justify-content:space-between;font-size:14px;color:var(--mute);margin-bottom:8px}.tot b{color:var(--ink);font-size:16px}
+.act{display:flex;gap:8px}.act button{flex:1;padding:13px 6px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:15px}
+.act .wa{flex:2;background:var(--acc2);color:var(--onacc);border:0;font-weight:800}
+.fr{display:flex;gap:6px;margin-bottom:6px}.fr .t{flex:1;width:auto}.fr .qn{flex:0 0 80px;text-align:center}
+#toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+#toast.on{opacity:1}
+</style></head><body>
+<header>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><h1>Liste de courses<small>Ô Cezam 95 – commande fournisseur</small></h1><button id="ed" aria-label="Modifier le catalogue" style="background:none;border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--ink);font-size:18px">✎</button></div>
+<input type="search" id="s" placeholder="Rechercher un article…">
+<div class="cats" id="cats"></div>
+</header>
+<main>
+<div id="adm"></div>
+<h2>Articles hors liste</h2><div id="free"></div><button class="bt" id="fa">+ Ajouter une ligne</button>
+<div id="list"></div>
+</main>
+<footer>
+<div class="tot"><span id="nb">0 article</span><span>Total estimé HT : <b id="tt">0,00 €</b></span></div>
+<div class="act"><button id="clr">Vider</button><button id="dl">Fichier</button><button class="wa" id="wa">Envoyer par WhatsApp</button></div>
+</footer>
+<div id="toast"></div>
+<datalist id="cl"></datalist>
+<script>
+const D={
+"Viandes":["Filet de poulet frais Achahada (kg)|5.99","Filet de poulet barquette noire (kg)|6.35","Boule kebab poulet 10 kg|49.39","Steak Zaczyk 45 g ×100|44.51","Steak Zaczyk 180 g ×30|52.89","Steak haché Farmer 90 g ×48|47.49","Steak gourmet 150 g ×28|53.29","Steak gourmet 120 g ×42|63.99","Merguez rondelle Al Jadid 1 kg|7.69","Bacon dinde (kg)|20.61","Jambon dinde pizza (kg)|12.03","Chicken wings 2,5 kg|12.99"],
+"Surgelés panés":["Tenders nature El Famoso 800 g|5.99","Tenders with pepper 800 g|5.79","Tenders poulet Rawabi 800 g|6.09","Tenders nature ACH 1 kg|7.80","Tenders nature NES 1 kg|7.74","Cordon bleu Farmer 875 g|5.39","Cordon volaille Rawabi 875 g|5.29","Nuggets poulet Farmer 800 g|4.99","Nuggets tempura Rawabi 800 g|4.79","Wings Tex Mex Rawabi 800 g|4.50","Beignet poulet chicken burger 800 g|5.49","Fish tenders Pacific West 1 kg|10.59","Filet O Fish 1 kg|9.79","Mozza stick 1 kg|9.89","Jalapenos 1 kg|10.89","Oignon rings 1 kg|4.29","Beignets calamar 1 kg|6.90","Oignons frits crispy 1 kg|5.49"],
+"Frites":["Frites Good Fries 10 kg|12.49","Frites Majistral 10 kg|11.69","Gold Star fries 10 kg|14.19","Potatoes Lambweston 10 kg|20.48","Galettes PDT 2,5 kg|6.49"],
+"Frais et légumes":["Crème liquide Président 1 L|3.30","Toastinette 1,082 kg|6.19","Cheddar liquide 1 kg|5.99","Boursin 1 kg|13.99","Emmental râpé 1 kg|6.59","Raclette tranche 400 g|4.49","Chèvre Soignon 500 g|6.89","Œufs ×30|6.50","Salade iceberg|1.35","Tomates colis 6 kg|15.55","Oignon rouge 10 kg|11.31","Poivrons boîte 3/1|5.69","Riz Perle d’Asie 20 kg|34.39"],
+"Pains":["Pain Mega buns ×24|12.49","Buns moyen sésame ×30|7.69","Buns PM Harrys ×48|7.84","Buns PM Americana ×48|7.89","Buns GM sésame ×24|7.49","Buns brioche Madison ×40|6.69","Pain panini Madison ×60|14.99","Tortillas Antalya ×18|3.29"],
+"Sauces et huile":["Algérienne Nawhal’s 10 L|35.29","Barbecue Nawhal’s 10 L|33.99","Biggy burger Nawhal’s 10 L|34.99","Mayonnaise Good Food 5 L|9.69","Sauce Big’s Farm’s 900 ml|3.39","Sauce Gi’s Farm’s 900 ml|3.79","Cheezy easy Nawhal’s 950 ml|4.69","Chili thaï Nawhal’s 950 ml|3.69","Sauce pepper Yummys 900 ml|3.99","Harissa 4/4|1.99","Sauce sweet chili Cock 4,5 L|14.09","Huile tournesol 10 L|16.99","Stick mayonnaise Colona ×500|21.29","Stick algérienne Colona ×500|23.19","Stick ketchup Colona ×500|18.49","Stick samouraï Colona ×500|23.09","Stick biggy Colona ×500|22.19","Stick pitta Colona ×500|23.09"],
+"Boissons":["Coca-Cola 33 cl ×24|12.59","Coca Zero 33 cl ×24|12.09","Coca Cherry 33 cl ×24|13.29","Pepsi 33 cl ×24|10.99","Oasis tropical 33 cl ×24|11.99","Oasis pomme framboise cassis ×24|13.49","Orangina 33 cl ×24|13.99","Ice tea pêche 33 cl ×24|12.39","7Up mojito 33 cl ×24|12.99","Sprite 33 cl ×24|12.99","Fanta orange 33 cl ×24|15.29","Fanta citron 33 cl ×24|14.89","Schweppes agrumes ×24|12.79","Cristaline 50 cl ×24|3.99","Perrier 33 cl ×24|10.90","Capri-Sun ×10|3.49","Kinder Joy ×72|61.49"],
+"Desserts":["Tarte aux Daims (pièce)|13.99","Tiramisu caramel ×12|16.09","Tiramisu chocolat ×12|15.89"],
+"Emballages":["Box sandwich ×200|14.49","Sac kraft GM ×250|14.99","Papier hamburger ×1000|22.09","Bol kraft 750 ml ×50|6.59","Serviettes 33×33|1.39","Film alimentaire petit modèle|6.79","Gants nitrile ×100|5.36"]};
+const K="oc95_app_v1",$=x=>document.getElementById(x),eur=v=>v.toFixed(2).replace(".",",")+" €",esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let items=[],free=[],cat="Tout",q="",edit=false;
+function def(){items=Object.entries(D).flatMap(([c,a])=>a.map(s=>{const[n,p]=s.split("|");return{c,n,p:+p,q:0}}))}
+function sv(){try{localStorage.setItem(K,JSON.stringify({items,free}))}catch(e){}}
+try{const st=JSON.parse(localStorage.getItem(K));if(st&&st.items&&st.items.length){items=st.items;free=st.free||[]}}catch(e){}
+if(!items.length)def();
+const cs=()=>[...new Set(items.map(i=>i.c))];
+function toast(m){const e=$("toast");e.textContent=m;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),2200)}
+function cats(){$("cats").innerHTML=["Tout","Ma liste",...cs()].map(c=>`<button class="${c==cat?"on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");$("cl").innerHTML=cs().map(c=>`<option value="${esc(c)}">`).join("")}
+function adm(){$("adm").innerHTML=edit?`<div class="box"><h3>Ajouter un article au catalogue</h3><input class="t" id="nc" list="cl" placeholder="Catégorie"><input class="t" id="nn" placeholder="Nom de l’article"><input class="t" id="np" type="number" step="0.01" inputmode="decimal" placeholder="Prix HT (€)"><button class="bt" id="na">Ajouter</button><button class="bt" id="rs" style="background:var(--acc);color:var(--onacc)">Réinitialiser le catalogue d’origine</button></div>`:""}
+function render(){
+ const l=items.map((it,k)=>[it,k]).filter(([i])=>(cat=="Tout"||(cat=="Ma liste"?i.q>0:i.c==cat))&&i.n.toLowerCase().includes(q));
+ let h="",last="";
+ l.forEach(([i,k])=>{if(i.c!=last){h+=`<h2>${esc(i.c)}</h2>`;last=i.c}
+ h+=`<div class="row ${i.q?"sel":""}"><div class="nm">${esc(i.n)}${edit?"":`<i>${i.p?eur(i.p)+" HT":"prix libre"}</i>`}</div>`+(edit?`<input class="t pr" type="number" step="0.01" inputmode="decimal" value="${i.p}" data-pr="${k}"><button class="x" data-d="${k}" aria-label="Supprimer">✕</button>`:`<div class="q"><button data-m="${k}">−</button><b>${i.q}</b><button data-p="${k}">+</button></div>`)+`</div>`});
+ $("list").innerHTML=h||'<p style="color:var(--mute)">Aucun article. Utilisez ✎ pour en ajouter.</p>';
+ const s=items.filter(i=>i.q>0);$("nb").textContent=s.length+" article"+(s.length>1?"s":"");
+ $("tt").textContent=eur(s.reduce((a,i)=>a+i.q*i.p,0));sv();
+}
+function text(){
+ const s=items.filter(i=>i.q>0),fl=free.filter(f=>f.n.trim());if(!s.length&&!fl.length)return"";
+ let t=`COMMANDE – Ô CEZAM 95\nDate : ${new Date().toLocaleDateString("fr-FR")}\n`,tot=0;
+ cs().forEach(c=>{const g=s.filter(i=>i.c==c);if(!g.length)return;t+=`\n${c.toUpperCase()}\n`;g.forEach(i=>{t+=`• ${i.q} × ${i.n}\n`;tot+=i.q*i.p})});
+ if(fl.length){t+="\nAUTRES\n";fl.forEach(f=>{t+=`• ${f.q||1} × ${f.n.trim()}\n`})}
+ const n=s.length+fl.length;return t+`\n${n} article${n>1?"s":""}`+(tot?` – total estimé HT : ${eur(tot)}`+(fl.length?" (hors lignes libres)":""):"")+"\nMerci !"}
+function fname(){return"Commande-Ocezam95-"+new Date().toISOString().slice(0,10)+".txt"}
+function drawFree(){const w=$("free");w.innerHTML="";free.forEach(o=>{const d=document.createElement("div");d.className="fr";d.innerHTML='<input class="t" placeholder="Article…"><input class="t qn" type="number" inputmode="numeric" min="1" placeholder="Qté">';const[a,b]=d.querySelectorAll("input");a.value=o.n;b.value=o.q;a.oninput=()=>{o.n=a.value;sv()};b.oninput=()=>{o.q=b.value;sv()};w.appendChild(d)})}
+$("cats").onclick=e=>{if(e.target.dataset.c){cat=e.target.dataset.c;cats();render()}};
+$("s").oninput=e=>{q=e.target.value.toLowerCase();render()};
+$("list").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.p!=null)items[d.p].q++;
+ if(d.m!=null&&items[d.m].q>0)items[d.m].q--;
+ if(d.d!=null){if(!confirm("Supprimer « "+items[d.d].n+" » du catalogue ?"))return;items.splice(d.d,1);cats()}
+ render()};
+$("list").onchange=e=>{if(e.target.dataset.pr!=null){items[e.target.dataset.pr].p=Math.max(0,parseFloat(String(e.target.value).replace(",","."))||0);render();toast("Prix enregistré")}};
+$("adm").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.id=="na"){const c=$("nc").value.trim()||"Autres",n=$("nn").value.trim(),p=parseFloat($("np").value)||0;if(!n)return toast("Nom manquant");items.push({c,n,p,q:0});items.sort((a,b)=>cs().indexOf(a.c)-cs().indexOf(b.c));cats();adm();render();toast("Article ajouté")}
+ if(b.id=="rs"&&confirm("Remettre le catalogue d’origine ? Vos ajouts et prix modifiés seront perdus.")){def();cat="Tout";cats();render();toast("Catalogue réinitialisé")}};
+$("ed").onclick=()=>{edit=!edit;$("ed").style.background=edit?"var(--ink)":"none";$("ed").style.color=edit?"var(--bg)":"var(--ink)";adm();render()};
+$("fa").onclick=()=>{free.push({n:"",q:""});drawFree()};
+$("clr").onclick=()=>{if(confirm("Vider la liste ?")){items.forEach(i=>i.q=0);free=[];for(let k=0;k<3;k++)free.push({n:"",q:""});drawFree();render()}};
+$("dl").onclick=()=>{const t=text();if(!t)return toast("Liste vide");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download=fname();a.click()};
+$("wa").onclick=async()=>{const t=text();if(!t)return toast("Liste vide");
+ try{const f=new File([t],fname(),{type:"text/plain"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:t});return}}catch(e){if(e.name=="AbortError")return}
+ window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank")};
+if(!free.length)for(let k=0;k<3;k++)free.push({n:"",q:""});
+drawFree();cats();render();
+</script></body></html>
