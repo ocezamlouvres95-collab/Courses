@@ -35,6 +35,7 @@ footer{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:
 .fr{display:flex;gap:6px;margin-bottom:6px}.fr .t{flex:1;width:auto}.fr .qn{flex:0 0 80px;text-align:center}
 #toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
 #toast.on{opacity:1}
+#lk{position:fixed;inset:0;z-index:99;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}#lk h1{font-size:22px}#lk input{max-width:240px;text-align:center;font-size:22px;letter-spacing:4px}#lk button{padding:12px 28px;border:0;border-radius:10px;background:var(--acc2);color:var(--onacc);font-size:16px;font-weight:800}#lke{color:var(--acc);min-height:20px;font-size:14px}
 </style></head><body>
 <header>
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><h1>Liste de courses<small>Ô Cezam 95 – commande fournisseur</small></h1><button id="ed" aria-label="Modifier le catalogue" style="background:none;border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--ink);font-size:18px">✎</button></div>
@@ -51,6 +52,7 @@ footer{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:
 <div class="act"><button id="clr">Vider</button><button id="dl">Fichier</button><button class="wa" id="wa">Envoyer par WhatsApp</button></div>
 </footer>
 <div id="toast"></div>
+<div id="lk"><h1>Ô Cezam 95<small>Accès réservé à l’équipe</small></h1><input class="t" id="lkc" type="password" inputmode="numeric" autocomplete="off" placeholder="Code d’accès"><button id="lkb">Entrer</button><div id="lke"></div></div>
 <datalist id="cl"></datalist>
 <script>
 const D={
@@ -110,4 +112,9 @@ $("wa").onclick=async()=>{const t=text();if(!t)return toast("Liste vide");
  window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank")};
 if(!free.length)for(let k=0;k<3;k++)free.push({n:"",q:""});
 drawFree();cats();render();
+const hh=(s,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<s.length;i++){ch=s.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)};
+const H=8560983817878032;
+try{if(localStorage.getItem("oc95_ok")==String(H))$("lk").style.display="none"}catch(e){}
+function go(){if(hh("oc95:"+$("lkc").value.trim())==H){try{localStorage.setItem("oc95_ok",String(H))}catch(e){}$("lk").style.display="none"}else{$("lke").textContent="Code incorrect";$("lkc").value=""}}
+$("lkb").onclick=go;$("lkc").onkeydown=e=>{if(e.key=="Enter")go()};
 </script></body></html>
