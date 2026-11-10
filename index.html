@@ -49,7 +49,7 @@ footer{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:
 </main>
 <footer>
 <div class="tot"><span id="nb">0 article</span><span>Total estimé HT : <b id="tt">0,00 €</b></span></div>
-<div class="act"><button id="clr">Vider</button><button id="dl">Fichier</button><button class="wa" id="wa">Envoyer par WhatsApp</button></div>
+<div class="act"><button id="clr">Vider</button><button id="dl">Texte</button><button id="xl">Tableur</button><button class="wa" id="wa">Envoyer par WhatsApp</button></div>
 </footer>
 <div id="toast"></div>
 <div id="lk"><h1>Ô Cezam 95<small>Accès réservé à l’équipe</small></h1><input class="t" id="lkc" type="password" inputmode="numeric" autocomplete="off" placeholder="Code d’accès"><button id="lkb">Entrer</button><div id="lke"></div></div>
@@ -107,6 +107,13 @@ $("ed").onclick=()=>{edit=!edit;$("ed").style.background=edit?"var(--ink)":"none
 $("fa").onclick=()=>{free.push({n:"",q:""});drawFree()};
 $("clr").onclick=()=>{if(confirm("Vider la liste ?")){items.forEach(i=>i.q=0);free=[];for(let k=0;k<3;k++)free.push({n:"",q:""});drawFree();render()}};
 $("dl").onclick=()=>{const t=text();if(!t)return toast("Liste vide");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download=fname();a.click()};
+function csv(){const s=items.filter(i=>i.q>0),fl=free.filter(f=>f.n.trim());if(!s.length&&!fl.length)return"";
+ const e=v=>'"'+String(v).replace(/"/g,'""')+'"',n=v=>String(v.toFixed(2)).replace(".",",");
+ const r=[["Catégorie","Article","Qté commandée","Prix HT","Total HT","Qté reçue","Manquant","Remarque"]];
+ cs().forEach(c=>s.filter(i=>i.c==c).forEach(i=>r.push([c,i.n,i.q,i.p?n(i.p):"",i.p?n(i.q*i.p):"","","",""])));
+ fl.forEach(f=>r.push(["Autres",f.n.trim(),f.q||1,"","","","",""]));
+ return"\ufeff"+r.map(x=>x.map(e).join(";")).join("\r\n")}
+$("xl").onclick=()=>{const t=csv();if(!t)return toast("Liste vide");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv;charset=utf-8"}));a.download=fname().replace(".txt",".csv");a.click()};
 $("wa").onclick=async()=>{const t=text();if(!t)return toast("Liste vide");
  try{const f=new File([t],fname(),{type:"text/plain"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:t});return}}catch(e){if(e.name=="AbortError")return}
  window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank")};
