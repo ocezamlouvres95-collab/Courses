@@ -36,6 +36,7 @@ footer{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:
 #toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
 #toast.on{opacity:1}
 #lk{position:fixed;inset:0;z-index:99;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}#lk h1{font-size:22px}#lk input{max-width:240px;text-align:center;font-size:22px;letter-spacing:4px}#lk button{padding:12px 28px;border:0;border-radius:10px;background:var(--acc2);color:var(--onacc);font-size:16px;font-weight:800}#lke{color:var(--acc);min-height:20px;font-size:14px}
+#ch{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:20px}#ch .box{background:var(--card);border:1px solid var(--line);border-style:solid;width:100%;max-width:340px;text-align:center}#ch .bt small{display:block;font-weight:400;opacity:.8;font-size:12px}
 </style></head><body>
 <header>
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><h1>Liste de courses<small>Ô Cezam 95 – commande fournisseur</small></h1><button id="ed" aria-label="Modifier le catalogue" style="background:none;border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--ink);font-size:18px">✎</button></div>
@@ -49,10 +50,11 @@ footer{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:
 </main>
 <footer>
 <div class="tot"><span id="nb">0 article</span><span>Total estimé HT : <b id="tt">0,00 €</b></span></div>
-<div class="act"><button id="clr">Vider</button><button id="dl">Texte</button><button id="xl">Tableur</button><button class="wa" id="wa">Envoyer par WhatsApp</button></div>
+<div class="act"><button id="clr">Vider</button><button class="wa" id="wa">Envoyer (texte ou tableur)</button></div>
 </footer>
 <div id="toast"></div>
 <div id="lk"><h1>Ô Cezam 95<small>Accès réservé à l’équipe</small></h1><input class="t" id="lkc" type="password" inputmode="numeric" autocomplete="off" placeholder="Code d’accès"><button id="lkb">Entrer</button><div id="lke"></div></div>
+<div id="ch" style="display:none"><div class="box"><h3>Envoyer la commande en…</h3><button class="bt" id="ct" style="background:var(--acc2);color:var(--onacc)">Texte<small>message lisible dans WhatsApp</small></button><button class="bt" id="cx">Tableur<small>fichier à ouvrir dans Excel / Sheets</small></button><button class="bt" id="cc" style="background:none;color:var(--mute)">Annuler</button></div></div>
 <datalist id="cl"></datalist>
 <script>
 const D={
@@ -106,17 +108,20 @@ $("adm").onclick=e=>{const b=e.target.closest("button");if(!b)return;
 $("ed").onclick=()=>{edit=!edit;$("ed").style.background=edit?"var(--ink)":"none";$("ed").style.color=edit?"var(--bg)":"var(--ink)";adm();render()};
 $("fa").onclick=()=>{free.push({n:"",q:""});drawFree()};
 $("clr").onclick=()=>{if(confirm("Vider la liste ?")){items.forEach(i=>i.q=0);free=[];for(let k=0;k<3;k++)free.push({n:"",q:""});drawFree();render()}};
-$("dl").onclick=()=>{const t=text();if(!t)return toast("Liste vide");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download=fname();a.click()};
+const _dl=()=>{const t=text();if(!t)return toast("Liste vide");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download=fname();a.click()};
 function csv(){const s=items.filter(i=>i.q>0),fl=free.filter(f=>f.n.trim());if(!s.length&&!fl.length)return"";
  const e=v=>'"'+String(v).replace(/"/g,'""')+'"',n=v=>String(v.toFixed(2)).replace(".",",");
  const r=[["Catégorie","Article","Qté commandée","Prix HT","Total HT","Qté reçue","Manquant","Remarque"]];
  cs().forEach(c=>s.filter(i=>i.c==c).forEach(i=>r.push([c,i.n,i.q,i.p?n(i.p):"",i.p?n(i.q*i.p):"","","",""])));
  fl.forEach(f=>r.push(["Autres",f.n.trim(),f.q||1,"","","","",""]));
  return"\ufeff"+r.map(x=>x.map(e).join(";")).join("\r\n")}
-$("xl").onclick=()=>{const t=csv();if(!t)return toast("Liste vide");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv;charset=utf-8"}));a.download=fname().replace(".txt",".csv");a.click()};
-$("wa").onclick=async()=>{const t=text();if(!t)return toast("Liste vide");
- try{const f=new File([t],fname(),{type:"text/plain"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:t});return}}catch(e){if(e.name=="AbortError")return}
- window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank")};
+const _xl=()=>{const t=csv();if(!t)return toast("Liste vide");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv;charset=utf-8"}));a.download=fname().replace(".txt",".csv");a.click()};
+async function send(k){$("ch").style.display="none";const x=k=="txt",t=x?text():csv();if(!t)return toast("Liste vide");
+ const f=new File([t],x?fname():fname().replace(".txt",".csv"),{type:x?"text/plain":"text/csv"});
+ try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share(x?{files:[f],text:t}:{files:[f]});return}}catch(e){if(e.name=="AbortError")return}
+ if(x)window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");else{_xl();toast("Fichier téléchargé : joignez-le dans WhatsApp")}}
+$("wa").onclick=()=>{if(!text())return toast("Liste vide");$("ch").style.display="flex"};
+$("ct").onclick=()=>send("txt");$("cx").onclick=()=>send("csv");$("cc").onclick=()=>{$("ch").style.display="none"};
 if(!free.length)for(let k=0;k<3;k++)free.push({n:"",q:""});
 drawFree();cats();render();
 const hh=(s,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<s.length;i++){ch=s.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)};
